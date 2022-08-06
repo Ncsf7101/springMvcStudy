@@ -1,0 +1,502 @@
+01  配置ServletContainersInitConfig
+@ComponentScan(value="com.rqiang", excludeFilters = @ComponentScan.Filter(type = FilterType.ANNOTATION, classes = Controller.class))
+
+ 
+
+ 
+
+public class ServletContainersInitConfig extends AbstractAnnotationConfigDispatcherServletInitializer {
+
+    @Override
+    protected Class<?>[] getRootConfigClasses() {
+        return new Class[]{SpringConfig.class};
+    }
+
+    @Override
+    protected Class<?>[] getServletConfigClasses() {
+        return new Class[]{SpringConfig.class};
+    }
+
+    @Override
+    protected String[] getServletMappings() {
+        return new String[]{"/"};
+    }
+}
+
+//public class ServletContainersInitConfig extends AbstractDispatcherServletInitializer {
+//    //加载springMVC容器配置
+//    @Override
+//    protected WebApplicationContext createServletApplicationContext() {
+//        AnnotationConfigWebApplicationContext ctx = new AnnotationConfigWebApplicationContext();
+//        ctx.register(SpringMvcConfig.class);
+//        return ctx;
+//    }
+//    //设置哪些请求归属springMVC处理
+//    @Override
+//    protected String[] getServletMappings() {
+//        return new String[]{"/"};
+//    }
+//
+//    //加载spring容器配置
+//    @Override
+//    protected WebApplicationContext createRootApplicationContext() {
+//        AnnotationConfigWebApplicationContext ctx = new AnnotationConfigWebApplicationContext();
+//        ctx.register(SpringConfig.class);
+//        return ctx;
+//    }
+//}
+
+ 
+
+02
+@Controller //表现层Bean标识
+@RequestMapping("/user")
+public class UserController {
+    //2.2 设置当前操作访问路径
+    @RequestMapping("/save")
+    //2.3设置当前操作返回值类型
+    @ResponseBody
+    public String save(){
+        System.out.println("user save ...");
+        return "{'info':'user save'}";
+    }
+
+    //2.2 设置当前操作访问路径
+    @RequestMapping("/delete")
+    //2.3设置当前操作返回值类型
+    @ResponseBody
+    public String delete(){
+        System.out.println("user delete ...");
+        return "{'info':'user delete'}";
+    }
+}
+
+
+03 请求传递的各种参数
+ 
+
+//1.添加pom依赖
+//2.定于controller
+@Controller //表现层Bean标识
+@RequestMapping
+public class UserController {
+    //2.2 设置当前操作访问路径
+    @RequestMapping("/commonParam")
+    //2.3设置当前操作返回值类型
+    @ResponseBody
+    public String commonParam(String name, int age){
+        System.out.println("普通参数传递：name==>" + name);
+        System.out.println("普通参数传递：age==>" + age);
+        return "{'module':'common param'}";
+    }
+
+    @RequestMapping("/commonParamDifferentName")
+    //2.3设置当前操作返回值类型
+    @ResponseBody
+    public String commonParamDifferentName(@RequestParam("name") String userName, int age){
+        System.out.println("普通参数传递：userName==>" + userName);
+        System.out.println("普通参数传递：age==>" + age);
+        return "{'module':'common param different name'}";
+    }
+
+    @RequestMapping("/pojoParam")
+    //2.3设置当前操作返回值类型
+    @ResponseBody
+    public String pojoParam(User user){
+        System.out.println("pojo参数传递：user==>" + user);
+        return "{'module':'pojo param'}";
+    }
+
+    @RequestMapping("/pojoContainPojoParam")
+    //2.3设置当前操作返回值类型
+    @ResponseBody
+    public String pojoContainPojoParam(User user){
+        System.out.println("pojo嵌套pojo参数传递：user==>" + user);
+        return "{'module':'pojo containPojo param'}";
+    }
+
+    @RequestMapping("/arrayParam")
+    //2.3设置当前操作返回值类型
+    @ResponseBody
+    public String arrayParam(String[] likes){
+        System.out.println("数组参数传递：likes==>" + Arrays.toString(likes));
+        return "{'module':'array param'}";
+    }
+
+    @RequestMapping("/listParam")
+    //2.3设置当前操作返回值类型
+    @ResponseBody
+    public String listParam(@RequestParam List<String> likes){
+        System.out.println("列表参数传递：likes==>" + likes.toString());
+        return "{'module':'list param'}";
+    }
+
+    @RequestMapping("/listParamForJson")
+    //2.3设置当前操作返回值类型
+    @ResponseBody
+    public String listParamForJson(@RequestBody List<String> likes){
+        System.out.println("列表（json）参数传递：likes==>" + likes.toString());
+        return "{'module':'list param for json param'}";
+    }
+
+    @RequestMapping("/pojoParamForJson")
+    //2.3设置当前操作返回值类型
+    @ResponseBody
+    public String pojoParamForJson(@RequestBody User user){
+        System.out.println("pojo参数（json）传递：user==>" + user);
+        return "{'module':'pojo param for json param'}";
+    }
+
+    @RequestMapping("/pojoContainPojoParamForJson")
+    //2.3设置当前操作返回值类型
+    @ResponseBody
+    public String listPojoParamForJson(@RequestBody List<User> user){
+        System.out.println("pojo嵌套pojo参数（json）传递：user==>" + user);
+        return "{'module':'list pojo param for json param'}";
+    }
+
+    @RequestMapping("/dataParam")
+    //2.3设置当前操作返回值类型
+    @ResponseBody
+    public String listParam(Date date,
+                            @DateTimeFormat(pattern = "yyyy-MM-dd") Date date1
+                        ,@DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS") Date date2){
+        System.out.println("日期参数传递：date==>" + date);
+        System.out.println("日期参数传递：date1==>" + date1);
+        System.out.println("日期参数传递：date2==>" + date2);
+        return "{'module':'date param'}";
+    }
+}
+
+
+ 
+
+@Override
+protected Filter[] getServletFilters() {
+    CharacterEncodingFilter filter =  new CharacterEncodingFilter();
+    filter.setEncoding("UTF-8");
+    return new Filter[]{filter};//可以设置多个
+}
+
+ 
+
+ 
+
+@EnableWebMvc
+
+//开启Json参数
+
+
+04  文本数据响应
+@Controller
+public class ResController {
+
+    @RequestMapping("/toJumpPage")
+    public String toJumpPage(){
+        System.out.println("跳转页面");
+        return "page.jsp";
+    }
+
+    @RequestMapping("/toText")
+    @ResponseBody
+    public String toText(){
+        System.out.println("返回纯文本数据");
+        return "response text";
+    }
+
+    @RequestMapping("/toJsonPOJO")
+    @ResponseBody
+    public User toJsonPOJO(){
+        System.out.println("返回Json对象数据");
+        User user = new User();
+        user.setName("rqiang");
+        user.setAge(22);
+        return user;
+    }
+
+    @RequestMapping("/toJsonList")
+    @ResponseBody
+    public List<User> toJsonList(){
+        System.out.println("返回json集合数据");
+        User user1 = new User();
+        user1.setName("杀杀杀");
+        user1.setAge(12);
+
+        User user2 = new User();
+        user1.setName("杀杀杀");
+        user1.setAge(13);
+
+        User user3 = new User();
+        user1.setName("杀杀杀");
+        user1.setAge(14);
+
+        List<User> users = new ArrayList<User>();
+        users.add(user1);
+        users.add(user2);
+        users.add(user3);
+        return users;
+    }
+}
+
+ 
+
+响应页面不用加@ResponBody
+
+ 
+
+响应数据，文本，POJO对象，或对象数组都要@ ResponBody，会将当前控制器返回值作为响应体响应出去，转换成字符串或者JSON
+
+ 
+
+1.     文本返回为字符串
+
+2.     POJO,对象数组等 都返回JSON
+
+而且自动将返回的对象转换成Json格式，通过导入的依赖自动转换
+
+//HttpMessageConverter 类型转换器
+
+ 
+
+ 
+
+<dependency>
+    <groupId>com.fasterxml.jackson.core</groupId>
+    <artifactId>jackson-databind</artifactId>
+    <version>2.9.0</version>
+</dependency>
+
+
+05 Rest开发
+package com.rqiang.controller;
+
+import com.rqiang.domain.User;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+
+//1.添加pom依赖
+//2.定于controller
+@Controller //表现层Bean标识
+@RequestMapping
+public class UserController {
+//    @RequestMapping(value = "/users/{id}", method = RequestMethod.GET)
+//    @ResponseBody
+//    public String save(@PathVariable User user){
+//        System.out.println("user save..." + user);
+//        return "{'module':'user save'}";
+//    }
+
+    @RequestMapping(value = "/users", method = RequestMethod.POST)
+    @ResponseBody
+    public String save(){
+        System.out.println("user save...");
+        return "{'module':'user save'}";
+    }
+//
+    @RequestMapping(value = "/users/{id}", method = RequestMethod.DELETE)
+    @ResponseBody
+    public String delete(@PathVariable int id){
+        System.out.println("user delete..." + id);
+        return "{'module':'user delete'}";
+    }
+//
+    @RequestMapping(value = "/users", method = RequestMethod.PUT)
+    @ResponseBody
+    public String update(@RequestBody User user){
+        System.out.println("user update..." + user);
+        return "{'module':'user update'}";
+    }
+//
+    @RequestMapping(value = "/users/{id}", method = RequestMethod.GET)
+    @ResponseBody
+    public String getById(@PathVariable Integer id){
+        System.out.println("user save..." + id);
+        return "{'module':'user getById'}";
+    }
+//
+    @RequestMapping(value = "/users", method = RequestMethod.GET)
+    @ResponseBody
+    public String getAll(){
+        System.out.println("user getAll...");
+        return "{'module':'user getAll'}";
+    }
+
+
+
+}
+
+
+06 Rest快速开发
+ 
+
+@RestController
+@RequestMapping("/books")
+public class BookController {
+
+    @PostMapping
+    public String save(){
+        System.out.println("book save...");
+        return "{'module':'book save'}";
+    }
+
+    @DeleteMapping("/{id}")
+    public String delete(@PathVariable int id){
+        System.out.println("book delete..." + id);
+        return "{'module':'book delete'}";
+    }
+
+    @PutMapping
+    public String update(@RequestBody User user){
+        System.out.println("book update..." + user);
+        return "{'module':'book update'}";
+    }
+
+    @GetMapping("/{id}")
+    public String getById(@PathVariable Integer id){
+        System.out.println("book save..." + id);
+        return "{'module':'book getById'}";
+    }
+
+    @GetMapping
+    public String getAll(){
+        System.out.println("book getAll...");
+        return "{'module':'book getAll'}";
+    }
+}
+
+
+07 添加Mvc访问支持
+ 
+
+@Configuration
+public class SpringMvcSupport extends WebMvcConfigurationSupport {
+
+    @Override
+    protected void addResourceHandlers(ResourceHandlerRegistry registry) {
+        //当访问/pages/???时，访问/pages目录下的内容
+        registry.addResourceHandler("/pages/**").addResourceLocations("/pages/");
+        registry.addResourceHandler("/js/**").addResourceLocations("/js/");
+        registry.addResourceHandler("/css/**").addResourceLocations("/css/");
+        registry.addResourceHandler("/plugins/**").addResourceLocations("/plugins/");
+    }
+}
+
+ 
+
+ 
+
+ 
+
+ 
+
+@ComponentScan({"com.rqiang.controller", "com.rqiang.config"})
+
+
+08 ssm增删改查
+ 
+
+axios.get(“/books”).then((res)=>{});
+
+axios.post(“/books”, this.formData).then((res)=>{});
+
+axios.delete(“/books/”+row.id).then((res)=>{});
+
+axios.put(“/books”, this.formData).then((res)=>{});
+
+axios.put(“/books/” + row.id).then((res)=>{});
+
+
+09 拦截器
+ 
+
+@Configuration
+@ComponentScan({"com.rqiang.controller", "com.rqiang.config"})
+@EnableWebMvc
+public class SpringMvcConfig implements WebMvcConfigurer {
+    @Autowired
+    private ProjectInterceptor projectInterceptor;
+
+
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(projectInterceptor).addPathPatterns("/books", "/books/*");
+    }
+}
+
+ 
+
+ 
+
+//@Configuration
+public class SpringMvcSupport extends WebMvcConfigurationSupport {
+
+    @Autowired
+    private ProjectInterceptor projectInterceptor;
+
+    @Override
+    protected void addResourceHandlers(ResourceHandlerRegistry registry) {
+        //当访问/pages/???时，访问/pages目录下的内容
+        registry.addResourceHandler("/pages/**").addResourceLocations("/pages/");
+        registry.addResourceHandler("/js/**").addResourceLocations("/js/");
+        registry.addResourceHandler("/css/**").addResourceLocations("/css/");
+        registry.addResourceHandler("/plugins/**").addResourceLocations("/plugins/");
+    }
+
+    @Override
+    protected void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(projectInterceptor).addPathPatterns("/books", "/books/*");
+    }
+}
+
+
+@Component
+
+public class ProjectInterceptor implements HandlerInterceptor {
+
+    @Override
+
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+
+        System.out.println("preHandle...");
+
+        return true;//false中止原始操作的执行，如果中止，无法向下执行
+
+    }
+
+
+
+    @Override
+
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+
+        System.out.println("postHandle...");
+
+    }
+
+
+
+    @Override
+
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+
+        System.out.println("afterHandle...");
+
+    }
+
+}
+ 
+ 
+拦截器链
+//false中止原始操作的执行，如果中止，无法向下执行。多个拦截器链，当返回false也会直接终止
+                //相当于带俩三层 手套 帽子  鞋套，先穿后脱；
+                //第三层false,返回第二层->第一层afterCompletion
+                //第二层false,返回第一层afterCompletion
+                //第一层false,直接推出
+
+ 
+ 
